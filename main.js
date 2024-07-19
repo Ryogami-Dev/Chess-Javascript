@@ -54,6 +54,34 @@ function drawPieces(){
 
 }
 
+
+canvas.addEventListener("click",function(event){
+    
+    let x = event.offsetX;
+    let y = event.offsetY;
+    
+    let row = Math.floor(y/100);
+    let col = Math.floor(x/100);
+    
+    let piece = checkerBoard[row][col];
+    
+    if(piece){
+        console.log("row: "+row , " col: "+ col)
+    }
+    
+    if(piece === "red"){
+        alert("Red")
+    }else if(piece === "gray"){
+        alert("Gray")
+    }
+    else{
+        alert(" '' ")
+    }
+    
+    
+})
+
+
 window.addEventListener("load", function(){
     drawBoard();
     drawPieces();
