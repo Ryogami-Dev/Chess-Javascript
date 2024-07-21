@@ -184,11 +184,6 @@ canvas.addEventListener("click", function getPoint(event) {
     }
 })
 
-/*
-window.addEventListener("load", function () {
-    drawBoard();
-    drawPieces();
-});*/
 function pieceObject(row, col, color, isClicked, isKing) {
     this.row = row;
     this.col = col;
