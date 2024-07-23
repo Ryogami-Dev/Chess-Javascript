@@ -108,26 +108,21 @@ let checkersBoard = [
 
 
 
-function drawBoard() {
-    let x = 0;
-    let y = 0;
-    for (let i = 0; i < 8; i++) {
-        y = 0;
-        for (let p = 0; p < 8; p++) {
-            let color = checkersBoard[i][p]
-
-            if ((i + p) % 2 == 0) {
-                ctx.fillStyle = "white";
-            } else {
-                ctx.fillStyle = "black";
+function drawBoard(){
+    
+    for(let i = 0 ; i < 8 ; i++){
+        for(let j = 0 ; j < 8 ; j++){
+            if((i+j) % 2 == 0 ){         
+                ctx.fillStyle = "White"
+            }else{
+                ctx.fillStyle = "Black"
             }
-            ctx.fillRect(x, y, 100, 100)
-            ctx.fill();
-            y += 100;
+            ctx.fillRect(i*100,j*100,100,100) 
         }
-        x += 100;
     }
-}
+
+}  
+
 
 
 function drawPieces() {
