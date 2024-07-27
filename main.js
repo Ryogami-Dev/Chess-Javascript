@@ -1,16 +1,50 @@
 let canvas = document.getElementById("myCanvas");
 let ctx = canvas.getContext("2d")
 
+
+function PieceObject(row , col , color , isClicked , isKing){
+    
+    this.row = row;
+    this.col = col;
+    this.color = color;
+    this.isClicked = isClicked;
+    this.isKing = isKing;
+
+    this.isClicked = false;
+    this.isKing = false;
+
+
+    this.draw = function(){
+
+        let X = this.col * 100+50;
+        let Y = this.row * 100+50;
+
+        if (this.isClicked) {
+
+            ctx.beginPath();
+            ctx.arc(X, Y, 40, 0, 2 * Math.PI);
+            ctx.fillStyle = "yellow";
+            ctx.fill();
+        }
+
+        ctx.beginPath()
+        ctx.arc(X,Y,40,0,2*Math.PI);
+        ctx.fillStyle = this.color;
+        ctx.fill();
+
+    }
+}
+
 let checkerBoard = [     
 
-    ["", "red", "", "red", "", "red", "", "red"],
-    ["red", "", "red", "", "red", "", "red", ""],
-    ["", "red", "", "red", "", "red", "", "red"],
+    ["", new PieceObject(0,1,"red"), "", new PieceObject(0,3,"red"), "", new PieceObject(0,5,"red"), "", new PieceObject(0,7,"red")],
+    [new PieceObject(1,0,"red"), "", new PieceObject(1,2,"red"), "", new PieceObject(1,4,"red"), "", new PieceObject(1,6,"red"), ""],
+    ["", new PieceObject(2,1,"red"), "", new PieceObject(2,3,"red"), "", new PieceObject(2,5,"red"), "", new PieceObject(2,7,"red")],
     ["", "", "", "", "", "", "", ""],
     ["", "", "", "", "", "", "", ""],
-    ["gray", "", "gray", "", "gray", "", "gray", ""],
-    ["", "gray", "", "gray", "", "gray", "", "gray"],
-    ["gray", "", "gray", "", "gray", "", "gray", ""]
+    [new PieceObject(5,0,"gray"), "", new PieceObject(5,2,"gray"), "", new PieceObject(5,4,"gray"), "", new PieceObject(5,6,"gray"), ""],
+    ["", new PieceObject(6,1,"gray"), "", new PieceObject(6,3,"gray"), "", new PieceObject(6,5,"gray"), "", new PieceObject(6,7,"gray")],
+    [new PieceObject(7,0,"gray"), "", new PieceObject(7,2,"gray"), "", new PieceObject(7,4,"gray"), "", new PieceObject(7,6,"gray"), ""]
 
 ]   
 
@@ -34,23 +68,30 @@ function drawPieces(){
 
     for(let i = 0 ; i < 8 ; i++){
         for(let j = 0 ; j < 8 ; j++){
-            if(checkerBoard[i][j] !== ""){
-                
-                ctx.beginPath();
-                ctx.arc(j*100+50 , i*100+50 ,40,0, 2*Math.PI)
-                if(checkerBoard[i][j] == "red"){
-                    ctx.fillStyle = "red";
-                }else{
-                    ctx.fillStyle = "gray"
-                }
+            let color = checkerBoard[i][j].color;
 
-                ctx.fill();
-                ctx.closePath()
-
+            if(color == "red"){
+                checkerBoard[i][j].draw()
+            }
+            if(color == "gray"){
+                checkerBoard[i][j].draw()
             }
         }
     }
 
+}
+
+function getSelectedPiece(){
+    for(let i = 0 ; i < checkerBoard.length ; i++){
+        for(let j = 0 ; j < checkerBoard[i].length; j++){
+            let piece = checkerBoard[i][j];
+            if(piece && piece.isClicked){
+                return piece;
+            }
+        }
+    }
+
+    return null;
 }
 
 
@@ -65,16 +106,16 @@ canvas.addEventListener("click",function(event){
     let piece = checkerBoard[row][col];
     
     if(piece){
-        console.log("row: "+row , " col: "+ col)
+        console.log("row: "+piece.row , " col: "+ piece.col)
     }
     
-    if(piece === "red"){
+    if(piece.color === "red"){
         alert("Red")
-    }else if(piece === "gray"){
+    }else if(piece.color === "gray"){
         alert("Gray")
     }
     else{
-        alert(" '' ")
+        alert("")
     }
     
     
@@ -87,10 +128,7 @@ window.addEventListener("load", function(){
 })
 
 
-
-
-
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 let canvas = document.getElementById("myCanvas")
 let ctx = canvas.getContext("2d");
