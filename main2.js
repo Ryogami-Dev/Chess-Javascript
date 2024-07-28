@@ -31,6 +31,23 @@ function PieceObject(row , col , color){
         ctx.fill();
 
     }
+
+    this.checkKing = function(){
+        if((piece.color == "red" && piece.row == 7) || (piece.color == "gray" && piece.row == 0)){
+            this.isKing = true;
+        }
+    }
+
+    this.move = function(newRow,newCol){
+        this.row = newRow;
+        this.col = newCol;
+        this.checkKing()
+    }
+
+    this.isValidMove= function(){
+        
+    }
+
 }
 
 let checkerBoard = [     
