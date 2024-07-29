@@ -13,21 +13,14 @@ let checkersBoard = [
 ];
 
 
-
 function drawBoard() {
     let x = 0;
     let y = 0;
     for (let i = 0; i < 8; i++) {
         y = 0;
         for (let p = 0; p < 8; p++) {
-
-            if ((i + p) % 2 == 0) {
-                ctx.fillStyle = "white";
-            } else {
-                ctx.fillStyle = "black";
-            }
-            ctx.fillRect(x, y, 100, 100)
-            ctx.fill();
+            ctx.fillStyle = (i + p) % 2 === 0 ? "white" : "black";
+            ctx.fillRect(x, y, 100, 100);
             y += 100;
         }
         x += 100;
@@ -38,20 +31,15 @@ function drawBoard() {
 function drawPieces() {
     for (let i = 0; i < checkersBoard.length; i++) {
         for (let p = 0; p < checkersBoard[i].length; p++) {
-            let color = checkersBoard[i][p];
+            let piece = checkersBoard[i][p];
 
-            if (color instanceof Piece)
-                color.draw();
+            if (piece instanceof Piece) {
+                piece.draw();
+            }
         }
     }
 }
 
-
-
-/*document.addEventListener('DOMContentLoaded', function callBoard() {
-    drawBoard();
-    drawPieces();
-})*/
 canvas.addEventListener("click", function getPoint(event) {
 
     let x = event.offsetX;
@@ -64,18 +52,48 @@ canvas.addEventListener("click", function getPoint(event) {
     if (row >= 0 && row < 8 && col >= 0 && col < 8) {
         let piece = checkersBoard[row][col];
 
-        if (piece !== undefined && piece !== "") {
-            console.log("row: " + row, " col: " + col)
-        }
 
-        if (piece === "red") {
-            alert("Red")
-        } else if (piece === "gray") {
-            alert("Gray")
-        }
-        else {
-            console.log("row: " + row, " col: " + col)
-            alert(" '' ")
+        if (piece instanceof Piece) {
+            for (let i = 0; i < checkersBoard.length; i++) {
+                for (let j = 0; j < checkersBoard[i].length; j++) {
+                    let p = checkersBoard[i][j];
+                    if (p instanceof Piece) {
+                        p.isClicked = false;
+                    }
+                }
+            }
+
+            // Toggle isClicked for the clicked piece
+            piece.isClicked = !piece.isClicked;
+
+            // Redraw board and pieces
+            drawBoard();
+            drawPieces();
+        } else {
+            let selectedPiece = getSelectedPiece();
+
+            if (selectedPiece) {
+                if (selectedPiece.isValidMove(row, col)) {
+                    //removing the piece
+                    let oldRow = selectedPiece.row;
+                    let oldCol = selectedPiece.col;
+
+                    checkersBoard[oldRow][oldCol] = "";
+
+                    //move the piece
+                    selectedPiece.move(row, col);
+
+                    //updating the board array
+                    checkersBoard[row][col] = selectedPiece;
+
+                    //deselecting
+                    selectedPiece.isClicked = false;
+
+                    //redrawing
+                    drawBoard();
+                    drawPieces();
+                }
+            }
         }
     }
 })
@@ -85,15 +103,16 @@ window.addEventListener("load", function () {
     drawBoard();
     drawPieces();
 });
-function Piece(row, col, color, isKing) {
+function Piece(row, col, color,) {
     this.row = row;
     this.col = col;
     this.color = color;
-    this.isClicked = true;
-    this.isKing = isKing;
+    this.isClicked = false;
+    this.isKing = false;
 
     // Method to draw the piece on the canvas
     this.draw = function () {
+     
         let X = this.col * 100 + 50;
         let Y = this.row * 100 + 50;
 
@@ -108,8 +127,70 @@ function Piece(row, col, color, isKing) {
         ctx.arc(X, Y, 35, 0, 2 * Math.PI);
         ctx.fillStyle = this.color;
         ctx.fill();
+
+        if (this.isKing) {
+
+            // Draw the smiley face
+            ctx.beginPath();
+            ctx.arc(X, Y , 15, 0, Math.PI); // Draw the smile
+            ctx.strokeStyle = "white";
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.arc(X - 10, Y - 15, 5, 0, 2 * Math.PI); // Left eye
+            ctx.fillStyle = "white";
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.arc(X + 10, Y - 15, 5, 0, 2 * Math.PI); // Right eye
+            ctx.fillStyle = "white";
+            ctx.fill();
+            
+        }
+    }
+
+    this.checkKing = function () {
+        if ((this.color == "red" && this.row == 7) || (this.color == "grey" && this.row == 0)) {
+            this.isKing = true;
+        }
+    }
+    this.move = function (newRow, newCol) {
+        this.row = newRow;
+        this.col = newCol;
+        this.checkKing()
+    }
+
+    this.isValidMove = function (newRow, newCol) {
+        if (newRow < 0 || newRow >= 8 || newCol < 0 || newCol >= 8) {
+            return false;
+        }
+        if (checkersBoard[newRow][newCol] !== "") {
+            return false;
+        }
+        let row2 = newRow - this.row;
+        let col2 = newCol - this.col;
+
+        if ((row2 === 1 || row2 === -1) && (col2 === 1 || col2 === -1)) {
+            if (this.isKing || (this.color === "red" && row2 === 1) || (this.color === "gray" && row2 === -1)) {
+                return true;
+            }
+        }
+
+        if ((row2 === 2 || row2 === -2) && (col2 === 2 || col2 === -2)) {
+            let middleRow = this.row + row2 / 2;
+            let middleCol = this.col + col2 / 2;
+
+            if (checkersBoard[middleRow][middleCol] !== '' && checkersBoard[middleRow][middleCol].color !== this.color) {
+                checkersBoard[middleRow][middleCol] = '';
+                return true;
+            }
+        }
+
+        return false;
     }
 }
+
+
 function getSelectedPiece() {
     for (let i = 0; i < checkersBoard.length; i++) {
         for (let p = 0; p < checkersBoard[i].length; p++) {
