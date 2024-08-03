@@ -29,11 +29,34 @@ function PieceObject(row , col , color){
         ctx.arc(X,Y,38,0,2*Math.PI);
         ctx.fillStyle = this.color;
         ctx.fill();
+        if(this.isKing){
+            ctx.beginPath();
+            ctx.moveTo(X - 18 , Y - 30);
+            ctx.lineTo(X-10 , Y - 38);
+            ctx.lineTo(X,Y-28)
+            ctx.lineTo(X+10 , Y - 38);
+            ctx.lineTo(X + 18, Y - 30);
+            ctx.closePath();
+            ctx.fillStyle = "gold"
+            ctx.fill()
+            ctx.strokeStyle = "black";
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.arc(X,Y,20,0,Math.PI,false);
+            ctx.moveTo(X -10 , Y - 5);
+            ctx.arc(X-12 , Y-5,4,0,3*Math.PI);
+            ctx.moveTo(X+14,Y-5)
+            ctx.arc(X+12, Y-5,4,0,2*Math.PI);
+            ctx.strokeStyle = "white";
+            ctx.stroke();
+
+        }
 
     }
 
     this.checkKing = function(){
-        if((piece.color == "red" && piece.row == 7) || (piece.color == "gray" && piece.row == 0)){
+        if((this.color == "red" && this.row == 7) || (this.color == "gray" && this.row == 0)){
             this.isKing = true;
         }
     }
@@ -44,8 +67,51 @@ function PieceObject(row , col , color){
         this.checkKing()
     }
 
-    this.isValidMove= function(){
+    this.isValidMove= function(newRow,newCol){
         
+        if(newRow < 0 || newRow >= 8 || newCol < 0 || newCol>= 8){
+            return false;
+        }
+
+        if(checkerBoard[newRow][newCol] !== ""){
+            
+            return false;    
+        }
+
+        let rDiff = newRow - this.row;
+        let cDiff = Math.abs(newCol - this.col);
+
+        if(!this.isKing){
+            if(this.color === "red" && rDiff !== 1 && rDiff !== 2){
+                return false;
+            }
+            if(this.color === "gray" && rDiff !== -1 && rDiff !== -2){
+                return false;
+            }
+
+        }else{
+            if(Math.abs(rDiff) !== 1 && Math.abs(rDiff) !==2){
+                return false;
+            }
+        }
+
+        if(Math.abs(rDiff) === 1 && cDiff === 1){
+            return true;
+        }
+
+        if(Math.abs(rDiff) === 2 && cDiff === 2){
+            let midRow = Math.floor((this.row + newRow)/2);
+            let midCol = Math.floor((this.col+ newCol)/2);
+
+            let midPiece = checkerBoard[midRow][midCol];
+            
+            if(midPiece !== "" && midPiece.color !== this.color){
+                checkerBoard[midRow][midCol] = "";
+                return true;
+            }
+        }
+
+        return false;
     }
 
 }
@@ -83,13 +149,9 @@ function drawPieces(){
 
     for(let i = 0 ; i < 8 ; i++){
         for(let j = 0 ; j < 8 ; j++){
-            let color = checkerBoard[i][j].color;
-
-            if(color == "red"){
-                checkerBoard[i][j].draw()
-            }
-            if(color == "gray"){
-                checkerBoard[i][j].draw()
+            let piece = checkerBoard[i][j];
+            if(piece !== undefined && piece !== ""){
+                piece.draw();
             }
         }
     }
@@ -127,6 +189,16 @@ canvas.addEventListener("click",function(event){
         }
 
         piece.isClicked = !piece.isClicked;
+    }else{
+        let selectedPiece = getSelectedPiece();
+        if(selectedPiece){
+            if(selectedPiece.isValidMove(row,col)){
+                checkerBoard[selectedPiece.row][selectedPiece.col] = "";
+                selectedPiece.move(row,col);
+                checkerBoard[row][col] = selectedPiece;
+                selectedPiece.isClicked = false;
+            }
+        }
     }
     drawBoard();
     drawPieces();
